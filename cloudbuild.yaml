@@ -1,0 +1,22 @@
+steps:
+  # 1️⃣ Construir la imagen con Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/scraper-ministerios/github.com/jerryindeed/scrap-ministerios:$COMMIT_SHA', '.']
+
+  # 2️⃣ Subir la imagen a Google Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/scraper-ministerios/github.com/jerryindeed/scrap-ministerios:$COMMIT_SHA']
+
+  # 3️⃣ Desplegar en Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      [
+        'run', 'deploy', 'scraper-ministerios',
+        '--image', 'gcr.io/scraper-ministerios/github.com/jerryindeed/scrap-ministerios:$COMMIT_SHA',
+        '--platform', 'managed',
+        '--region', 'us-central1',
+        '--allow-unauthenticated'
+      ]
+
+images:
+  - 'gcr.io/scraper-ministerios/github.com/jerryindeed/scrap-ministerios:$COMMIT_SHA'
