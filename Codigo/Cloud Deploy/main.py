@@ -2,17 +2,13 @@
 from flask import Flask, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from google.cloud import storage
-import threading
-from urllib.parse import quote as url_quote
 import pandas as pd
 import time
 import io
-import os
 
 app = Flask(__name__)
 
@@ -220,14 +216,5 @@ def main():
         raise e
 
 # Función para ejecutar el scraping
-def run_scraping():
-    main()
-
 if __name__ == "__main__":
-    # Ejecutar el scraping en un hilo separado
-    scraping_thread = threading.Thread(target=run_scraping)
-    scraping_thread.start()
-    
-    # Iniciar el servidor Flask
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host="0.0.0.0", port=port)
+    main() 
