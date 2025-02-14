@@ -136,7 +136,6 @@ def main():
                                                 # Agregar los datos a all_data
                                                 for datos_fila in datos_extraidos:
                                                     if len(datos_fila) == len(columnas):
-                                                        print('🔄️ Extrayendo datos de tabla...')
                                                         datos_fila.append(personal)
                                                         all_data.append(datos_fila)
 
@@ -194,23 +193,23 @@ def main():
                         except:
                             print(f"⚠ No se pudo hacer clic en {personal}. Pasando al siguiente tipo de personal...")
                     
-                    # Guardar los datos en el bucket de GCS
-                        if all_data:
-                            max_columnas = max(len(fila) for fila in all_data)
-                            columnas = ["Column_" + str(i) for i in range(max_columnas)]
-                            df_export = pd.DataFrame(all_data, columns=columnas)
-                        
-                            # Carga a GCS
-                            filename = f"{entidad}_data.csv"
-                            gcs_path = upload_to_gcs(df_export, filename)
-                            results.append({
-                                "entidad": entidad,
-                                "status": "success",
-                                "file_path": gcs_path
-                            })
             except Exception as e:
                 print(f"❌ Error en la página {url}: {str(e)}")  
         driver.quit()
+        # Guardar los datos en el bucket de GCS
+        if all_data:
+            max_columnas = max(len(fila) for fila in all_data)
+            columnas = ["Column_" + str(i) for i in range(max_columnas)]
+            df_export = pd.DataFrame(all_data, columns=columnas)
+                        
+            # Carga a GCS
+            filename = f"{entidad}_data.csv"
+            gcs_path = upload_to_gcs(df_export, filename)
+            results.append({
+                "entidad": entidad,
+                "status": "success",
+                "file_path": gcs_path
+            })
         print("Scraping completado exitosamente!")
         print(f"Resultados: {results}")
         return results
