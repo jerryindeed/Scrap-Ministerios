@@ -1,11 +1,27 @@
 steps:
+  # Paso 1: Construir la imagen Docker
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen', '.']
+  
+  # Paso 2: Subir la imagen a Artifact Registry (o GCR si prefieres usarlo)
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen']
+  
+  # Paso 3: Crear y ejecutar el Cloud Run Job
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['run', 'deploy', 'mi-servicio',
-           '--image', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen',
-           '--platform', 'managed',
-           '--region', 'us-central1',
-           '--allow-unauthenticated']
+    args: [
+      'run', 'jobs', 'create', 'mi-job', 
+      '--image', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen',
+      '--platform', 'managed', 
+      '--region', 'us-central1',
+      '--allow-unauthenticated',
+      '--command', 'python',  # Aquí puedes cambiar el comando a lo que necesites ejecutar, por ejemplo 'python main.py'
+      '--args', 'main.py'  # Argumentos del comando si fuera necesario, por ejemplo pasar el archivo principal de tu scraper
+    ]
+
+  # Paso 4: Ejecutar el Cloud Run Job
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: [
+      'run', 'jobs', 'execute', 'mi-job', 
+      '--region', 'us-central1'
+    ]
