@@ -38,10 +38,6 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Descargar e instalar Google Chrome versión 100
-RUN wget https://dl.google.com/linux/direct/google-chrome-stable_100.0.4896.60-1_amd64.deb && \
-    apt-get install -y ./google-chrome-stable_100.0.4896.60-1_amd64.deb && \
-    rm google-chrome-stable_100.0.4896.60-1_amd64.deb
 
 # Instalar ChromeDriver compatible con la versión de Chrome
 RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
