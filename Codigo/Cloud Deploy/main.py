@@ -26,8 +26,8 @@ def get_chrome_options():
     return chrome_options
 
 # Conectamos al repo de GCS con su bucket correspondiente
-storage_client = storage.Client(project="fondecyt-450615")
-bucket = storage_client.bucket("transparencia-ministerios")
+storage_client = storage.Client(project="ministerios-test")
+bucket = storage_client.bucket("transparencia-ministerios1")
 
 def upload_to_gcs(df, filename):
     """Upload a DataFrame to Google Cloud Storage as CSV"""
@@ -35,7 +35,7 @@ def upload_to_gcs(df, filename):
     df.to_csv(csv_buffer, index=False, encoding="utf-8-sig")
     blob = bucket.blob(filename)
     blob.upload_from_string(csv_buffer.getvalue(), content_type="text/csv")
-    return f"gs://transparencia-ministerios/{filename}"
+    return f"gs://transparencia-ministerios1/{filename}"
 
 def main():
     print("¡Iniciando proceso de scraping!")
