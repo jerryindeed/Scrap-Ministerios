@@ -38,15 +38,23 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
+# Descargar e instalar Google Chrome
 RUN wget https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.98/linux64/chrome-linux64.zip && \
-    apt-get install -y ./chrome-linux64.zip && \
+    unzip chrome-linux64.zip && \
+    mv chrome-linux64 /opt/google/chrome && \
     rm chrome-linux64.zip
 
+# Establecer la variable de entorno para Google Chrome
+ENV PATH="/opt/google/chrome:${PATH}"
+
 # Instalar ChromeDriver compatible con la versión de Chrome
-RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE_133) && \
     wget -q "https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.98/linux64/chromedriver-linux64.zip" && \
-    unzip chromedriver_linux64.zip -d /usr/local/bin/ && \
-    rm chromedriver_linux64.zip
+    unzip chromedriver-linux64.zip -d /usr/local/bin/ && \
+    rm chromedriver-linux64.zip
+
+# Establecer Chrome como el navegador predeterminado para Selenium
+ENV GOOGLE_CHROME_BIN="/opt/google/chrome/chrome"
 
 # Establecer variables de entorno para Selenium
 ENV DISPLAY=:99
