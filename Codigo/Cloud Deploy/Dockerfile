@@ -38,21 +38,18 @@ RUN apt-get update && apt-get install -y \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Añadir clave GPG y repositorio para Chrome (método moderno)
-RUN mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome-keyring.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/google-chrome-keyring.gpg arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && apt-get install -y google-chrome-stable --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
+RUN wget https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.98/linux64/chrome-linux64.zip && \
+    apt-get install -y ./chrome-linux64.zip && \
+    rm chrome-linux64.zip
 
-# Descargar e instalar ChromeDriver
-RUN CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+\.\d+\.\d+') && \
-    CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION%.*}") && \
-    wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" && \
-    unzip chromedriver_linux64.zip && \
-    mv chromedriver /usr/local/bin/ && \
-    chmod +x /usr/local/bin/chromedriver && \
+# Instalar ChromeDriver compatible con la versión de Chrome
+RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) && \
+    wget -q "https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.98/linux64/chromedriver-linux64.zip" && \
+    unzip chromedriver_linux64.zip -d /usr/local/bin/ && \
     rm chromedriver_linux64.zip
+
+# Establecer variables de entorno para Selenium
+ENV DISPLAY=:99
 
 # Crear directorio de trabajo
 WORKDIR /app
