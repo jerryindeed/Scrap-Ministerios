@@ -92,11 +92,22 @@ def main():
                                     anho = table_two.find_element(By.XPATH, f".//a[contains(text(), '{year}')]")
                                     anho.click()
                                     print(f"➡ Se hizo clic en el año: {year}")
+                                    print("🔍 Extrayendo meses...")
+                                    time.sleep(5)
 
-                                    # Capturar los meses disponibles
-                                    table_three = WebDriverWait(driver, 10).until(
+                                    # Esperar a que los meses se carguen correctamente antes de capturarlos
+                                    WebDriverWait(driver, 5).until(
                                         EC.presence_of_element_located((By.ID, "tabThree"))
                                     )
+
+                                    # Recapturar la lista de meses después de cambiar de año
+                                    table_three = driver.find_element(By.ID, "tabThree")
+                                    months = WebDriverWait(table_three, 5).until(
+                                        EC.presence_of_all_elements_located((By.TAG_NAME, "li"))
+                                    )
+                                    month_list = [month.text.strip() for month in months if month.text.strip()]
+                                    
+                                    print(month_list)
                                     months = table_three.find_elements(By.TAG_NAME, "li")
                                     month_list = [month.text.strip() for month in months]
 
@@ -197,23 +208,31 @@ def main():
                 print(f"❌ Error en la página {url}: {str(e)}")  
         driver.quit()
         # Guardar los datos en el bucket de GCS
-        if all_data:
-            max_columnas = max(len(fila) for fila in all_data)
-            columnas = ["Column_" + str(i) for i in range(max_columnas)]
-            df_export = pd.DataFrame(all_data, columns=columnas)
-                        
-            # Carga a GCS
-            filename = f"{entidad}_data.csv"
-            gcs_path = upload_to_gcs(df_export, filename)
-            results.append({
+        # Guardar los datos en un solo CSV por entidad
+        # Asegurar que todas las filas tengan el mismo número de columnas antes de crear el DataFrame
+        max_columnas = max(len(fila) for fila in all_data) if all_data else 0
+
+        if max_columnas > len(columnas):
+            print(f"⚠ Hay más datos ({max_columnas}) que columnas definidas ({len(columnas)}). Ajustando...")
+            columnas.extend([f"Extra_{i}" for i in range(max_columnas - len(columnas))]) 
+            
+        elif max_columnas < len(columnas):
+            print(f"⚠ Hay menos datos ({max_columnas}) que columnas definidas ({len(columnas)}). Ajustando...")
+            columnas = columnas[:max_columnas] 
+
+        # Crear el DataFrame asegurando que las columnas coincidan con los datos
+        df_export = pd.DataFrame(all_data, columns=columnas)
+
+        # Guardar archivo
+        filename = f"{entidad}_data.csv"
+        gcs_path = upload_to_gcs(df_export, filename)
+        results.append({
                 "entidad": entidad,
                 "status": "success",
                 "file_path": gcs_path
             })
-        print("Scraping completado exitosamente!")
-        print(f"Resultados: {results}")
-        return results
-
+        print("➡ Siguiente URL")
+        
     except Exception as e:
         print(f"Error durante el scraping: {str(e)}")
         raise e
