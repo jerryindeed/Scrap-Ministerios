@@ -43,13 +43,7 @@ RUN apt-get update && apt-get install -y \
 RUN wget https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.98/linux64/chrome-linux64.zip && \
     ls -l && \  
     unzip chrome-linux64.zip && \
-    ls -l && \  
-    mv chrome-linux64 /opt/google/chrome && \
-    ls -l /opt/google/chrome && \ 
-    rm chrome-linux64.zip
-
-# Establecer la variable de entorno para Google Chrome
-ENV PATH="/opt/google/chrome:${PATH}"
+    ls -l && 
 
 # Instalar ChromeDriver compatible con la versión de Chrome
 RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE_133) && \
