@@ -9,10 +9,13 @@ from google.cloud import storage
 import pandas as pd
 import time
 import io
+import tempfile
 
+user_data_dir = tempfile.mkdtemp()
 # Configura ChromDriver de modo headless para correr sin problemas
 def get_chrome_options():
     chrome_options = Options()
+    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
     chrome_options.add_argument("--disable-extensions")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-gpu")
@@ -35,7 +38,8 @@ def main():
     print("¡Iniciando proceso de scraping!")
     try:
         # Inicia webdriver
-        service = Service()
+        # Configurar el servicio de ChromeDriver
+        service = Service("/usr/local/bin/chromedriver")
         chrome_options = get_chrome_options()
         driver = webdriver.Chrome(options=chrome_options,service=service)
         
