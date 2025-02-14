@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 from google.cloud import storage
 import pandas as pd
 import time
@@ -35,8 +36,9 @@ def main():
     print("¡Iniciando proceso de scraping!")
     try:
         # Inicia webdriver
+        service = Service()
         chrome_options = get_chrome_options()
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options,service=service)
         
         # Tomamos la organizacion de GCS
         organizations_blob = bucket.blob("Listado_organizaciones_estado.csv")
