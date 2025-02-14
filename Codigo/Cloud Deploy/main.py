@@ -1,19 +1,15 @@
-#Libraries to use
+# Libraries to use
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from flask import Flask, jsonify
 from google.cloud import storage
 from urllib.parse import quote as url_quote
 import pandas as pd
 import time
 import io
-
-#Genera app Flask para que corra en Cloud Run
-app = Flask(__name__)
 
 # Configura ChromDriver de modo headless para correr sin problemas
 def get_chrome_options():
@@ -37,13 +33,8 @@ def upload_to_gcs(df, filename):
     blob.upload_from_string(csv_buffer.getvalue(), content_type="text/csv")
     return f"gs://transparencia-ministerios/{filename}"
 
-@app.route("/")
-def home():
-    return "Se están scrapeando las entidades!"
-
-@app.route("/scrape", methods=["POST"])
-def scrape():
-    print("¡Entre al endpoint scraper!")
+def main():
+    print("¡Iniciando proceso de scraping!")
     try:
         # Inicia webdriver
         chrome_options = get_chrome_options()
@@ -65,6 +56,7 @@ def scrape():
             if pd.isna(url):
                 continue
 
+            print(f"Procesando entidad: {entidad}")
             all_data = []  # Lista para almacenar los datos del año completo
 
             # Scraper principal
@@ -214,17 +206,13 @@ def scrape():
                 })
 
         driver.quit()
-        return jsonify({
-            "status": "success",
-            "message": "Scraping completed",
-            "results": results
-        })
+        print("Scraping completado exitosamente!")
+        print(f"Resultados: {results}")
+        return results
 
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
+        print(f"Error durante el scraping: {str(e)}")
+        raise e
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080) 
+    main() 
