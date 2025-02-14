@@ -1,6 +1,7 @@
+# Usa una imagen base ligera con Python
 FROM python:3.9-slim
 
-# Instalación de dependencias básicas y librerías del sistema
+# Instala dependencias del sistema necesarias para Chrome y ChromeDriver
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
@@ -34,31 +35,32 @@ RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libpangocairo-1.0-0 \
     libxshmfence1 \
-    --no-install-recommends
-
-# Añadir clave GPG y repositorio para Chrome (método moderno)
-RUN mkdir -p /etc/apt/keyrings && \
-    curl -fsSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/keyrings/google-chrome-keyring.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/google-chrome-keyring.gpg arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
-    apt-get update && apt-get install -y google-chrome-stable --no-install-recommends && \
+    --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-# Descargar e instalar ChromeDriver
-RUN CHROME_VERSION=$(google-chrome-stable --version | grep -oP '\d+\.\d+\.\d+') && \
-    CHROMEDRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_VERSION%.*}") && \
-    wget -q "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip" && \
-    unzip chromedriver_linux64.zip && \
-    mv chromedriver /usr/local/bin/ && \
-    chmod +x /usr/local/bin/chromedriver && \
-    rm chromedriver_linux64.zip
+# install google chrome
+RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+    RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
+    RUN apt-get -y update
+    RUN apt-get install -y google-chrome-stable
+    
+    # install chromedriver
+    RUN apt-get install -yqq unzip
+    RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
+    RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+
+# Establecer variables de entorno para Selenium
+ENV DISPLAY=:99
 
 # Crear directorio de trabajo
 WORKDIR /app
 
-# Copiar dependencias y aplicación
+# Copiar dependencias e instalar paquetes de Python
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar el código fuente
 COPY . .
 
-# Ejecutar script (Run Job)
+# Definir comando de inicio
 CMD ["python", "main.py"]
