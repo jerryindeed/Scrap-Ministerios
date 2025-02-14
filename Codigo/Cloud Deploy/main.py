@@ -1,4 +1,5 @@
 # Libraries to use
+from flask import Flask, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -10,6 +11,9 @@ from urllib.parse import quote as url_quote
 import pandas as pd
 import time
 import io
+import os
+
+app = Flask(__name__)
 
 # Configura ChromDriver de modo headless para correr sin problemas
 def get_chrome_options():
@@ -215,4 +219,5 @@ def main():
         raise e
 
 if __name__ == "__main__":
-    main() 
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port) 
