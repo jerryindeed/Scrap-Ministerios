@@ -1,11 +1,11 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/$ministerios-test/mi-repo-docker/mi-imagen', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen', '.']
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/$ministerios-test/mi-repo-docker/mi-imagen']
+    args: ['push', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen']
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['run', 'deploy', 'mi-servicio',
-           '--image', 'us-central1-docker.pkg.dev/$ministerios-test/mi-repo-docker/mi-imagen',
+           '--image', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen',
            '--platform', 'managed',
            '--region', 'us-central1',
            '--allow-unauthenticated']
