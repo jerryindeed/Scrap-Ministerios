@@ -39,9 +39,13 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # Descargar e instalar Google Chrome
+# Descargar el archivo de Chrome
 RUN wget https://storage.googleapis.com/chrome-for-testing-public/133.0.6943.98/linux64/chrome-linux64.zip && \
+    ls -l && \  
     unzip chrome-linux64.zip && \
+    ls -l && \  
     mv chrome-linux64 /opt/google/chrome && \
+    ls -l /opt/google/chrome && \ 
     rm chrome-linux64.zip
 
 # Establecer la variable de entorno para Google Chrome
