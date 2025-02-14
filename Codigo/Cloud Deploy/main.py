@@ -55,7 +55,7 @@ def main():
             
             if pd.isna(url):
                 continue
-
+            driver.get(url)
             print(f"Procesando entidad: {entidad}")
             all_data = []  # Lista para almacenar los datos del año completo
 
