@@ -1,5 +1,4 @@
 # Libraries to use
-from flask import Flask, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -9,8 +8,6 @@ from google.cloud import storage
 import pandas as pd
 import time
 import io
-
-app = Flask(__name__)
 
 # Configura ChromDriver de modo headless para correr sin problemas
 def get_chrome_options():
