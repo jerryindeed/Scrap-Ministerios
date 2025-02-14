@@ -14,7 +14,6 @@ steps:
       '--image', 'us-central1-docker.pkg.dev/ministerios-test/mi-repo-docker/mi-imagen',
       '--format', 'managed', 
       '--region', 'us-central1',
-      '--allow-unauthenticated',
       '--command', 'python',  # Aquí puedes cambiar el comando a lo que necesites ejecutar, por ejemplo 'python main.py'
       '--args', 'main.py'  # Argumentos del comando si fuera necesario, por ejemplo pasar el archivo principal de tu scraper
     ]
