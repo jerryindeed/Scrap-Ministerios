@@ -1,66 +1,44 @@
-# Usa una imagen base ligera con Python
 FROM python:3.9-slim
 
-# Instala dependencias del sistema necesarias para Chrome y ChromeDriver
+# Instalar dependencias para Chrome
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
     unzip \
-    gnupg \
     ca-certificates \
     fontconfig \
-    libx11-6 \
-    libx11-xcb1 \
-    libxcb1 \
+    libx11-dev \
     libxcomposite1 \
-    libxcursor1 \
-    libxdamage1 \
-    libxext6 \
-    libxfixes3 \
-    libxi6 \
     libxrandr2 \
-    libxrender1 \
-    libxss1 \
-    libxtst6 \
-    libglib2.0-0 \
-    libnss3 \
-    libasound2 \
     libatk1.0-0 \
     libatk-bridge2.0-0 \
-    libcups2 \
-    libdbus-1-3 \
-    libdrm2 \
-    libgbm1 \
-    libgtk-3-0 \
-    libpango-1.0-0 \
-    libpangocairo-1.0-0 \
-    libxshmfence1 \
-    --no-install-recommends && \
-    rm -rf /var/lib/apt/lists/*
+    libnspr4 \
+    libnss3 \
+    libgbm-dev \
+    libasound2 \
+    libxss1 \
+    libcurl4 \
+    && rm -rf /var/lib/apt/lists/*
 
-# install google chrome
-RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-RUN sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list'
-RUN apt-get -y update
-RUN apt-get install -y google-chrome-stable
-    
-# install chromedriver
-RUN apt-get install -yqq unzip
-RUN wget -O /tmp/chromedriver.zip http://chromedriver.storage.googleapis.com/`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`/chromedriver_linux64.zip
-RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
+# Instalar Chrome
+RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN dpkg -i google-chrome-stable_current_amd64.deb
+RUN apt-get install -y -f  # Resolver dependencias
 
-# Establecer variables de entorno para Selenium
-ENV DISPLAY=:99
+# Instalar ChromeDriver compatible
+RUN CHROME_DRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE) \
+    && wget -q "https://chromedriver.storage.googleapis.com/$CHROME_DRIVER_VERSION/chromedriver_linux64.zip" \
+    && unzip chromedriver_linux64.zip \
+    && mv chromedriver /usr/local/bin/ \
+    && chmod +x /usr/local/bin/chromedriver
 
-# Crear directorio de trabajo
+# Instalar dependencias de Python
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copia tu código fuente al contenedor
+COPY . /app
 WORKDIR /app
 
-# Copiar dependencias e instalar paquetes de Python
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copiar el código fuente
-COPY . .
-
-# Definir comando de inicio
+# Ejecutar el scraper
 CMD ["python", "main.py"]
