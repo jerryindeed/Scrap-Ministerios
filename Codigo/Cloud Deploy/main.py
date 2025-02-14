@@ -38,10 +38,8 @@ def main():
     print("¡Iniciando proceso de scraping!")
     try:
         # Inicia webdriver
-        # Configurar el servicio de ChromeDriver
-        service = Service("/usr/local/bin/chromedriver")
         chrome_options = get_chrome_options()
-        driver = webdriver.Chrome(options=chrome_options,service=service)
+        driver = webdriver.Chrome(options=chrome_options)
         
         # Tomamos la organizacion de GCS
         organizations_blob = bucket.blob("Listado_organizaciones_estado.csv")
